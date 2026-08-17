@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perspective Practice</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            outline: none;
+            /* FIX 2: Hides the default OS cursor so only ImGui's cursor shows */
+            cursor: none;
+            /* FIX 3: Tells Firefox this canvas cannot be scrolled/swiped.
+               This instantly removes the touch/pen delay! */
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    <script type="text/javascript">
+        var Module = { canvas: document.getElementById('canvas') };
+    </script>
+    <script src="PerspectivePractice.js"></script>
+</body>
+</html>
