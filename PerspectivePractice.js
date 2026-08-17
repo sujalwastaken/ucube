@@ -7621,6 +7621,8 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
 
   var _glfwDestroyWindow = (winid) => GLFW.destroyWindow(winid);
 
+  var _glfwFocusWindow = (winid) => 0;
+
   var _glfwGetClipboardString = (win) => 0;
 
   var _glfwGetCursorPos = (winid, x, y) => GLFW.getCursorPos(winid, x, y);
@@ -7692,7 +7694,43 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
 
   var _glfwGetKey = (winid, key) => GLFW.getKey(winid, key);
 
+  
+  var _glfwGetMonitorPos = (monitor, x, y) => {
+      HEAP32[((x)>>2)] = 0;
+      HEAP32[((y)>>2)] = 0;
+    };
+
+  
+  var _glfwGetMonitorWorkarea = (monitor, x, y, w, h) => {
+      HEAP32[((x)>>2)] = 0;
+      HEAP32[((y)>>2)] = 0;
+  
+      HEAP32[((w)>>2)] = screen.availWidth;
+      HEAP32[((h)>>2)] = screen.availHeight;
+    };
+
+  
+  
+  var _glfwGetMonitors = (count) => {
+      HEAP32[((count)>>2)] = 1;
+      if (!GLFW.monitors) {
+        GLFW.monitors = _malloc(4);
+        HEAP32[((GLFW.monitors)>>2)] = 1;
+      }
+      return GLFW.monitors;
+    };
+
   var _glfwGetTime = () => GLFW.getTime() - GLFW.initialTime;
+
+  var _glfwGetVideoMode = (monitor) => 0;
+
+  var _glfwGetWindowAttrib = (winid, attrib) => {
+      var win = GLFW.WindowFromId(winid);
+      if (!win) return 0;
+      return win.attributes[attrib];
+    };
+
+  var _glfwGetWindowPos = (winid, x, y) => GLFW.getWindowPos(winid, x, y);
 
   var _glfwGetWindowSize = (winid, width, height) => GLFW.getWindowSize(winid, width, height);
 
@@ -7792,6 +7830,8 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
 
   var _glfwSetScrollCallback = (winid, cbfun) => GLFW.setScrollCallback(winid, cbfun);
 
+  var _glfwSetWindowCloseCallback = (winid, cbfun) => GLFW.setWindowCloseCallback(winid, cbfun);
+
   var _glfwSetWindowFocusCallback = (winid, cbfun) => {
       var win = GLFW.WindowFromId(winid);
       if (!win) return null;
@@ -7800,9 +7840,34 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
       return prevcbfun;
     };
 
+  var _glfwSetWindowOpacity = (winid, opacity) => { /* error */ };
+
+  var _glfwSetWindowPos = (winid, x, y) => GLFW.setWindowPos(winid, x, y);
+
+  var _glfwSetWindowPosCallback = (winid, cbfun) => {
+      var win = GLFW.WindowFromId(winid);
+      if (!win) return null;
+      var prevcbfun = win.windowPosFunc;
+      win.windowPosFunc = cbfun;
+      return prevcbfun;
+    };
+
   var _glfwSetWindowSize = (winid, width, height) => GLFW.setWindowSize(winid, width, height);
 
+  var _glfwSetWindowSizeCallback = (winid, cbfun) => GLFW.setWindowSizeCallback(winid, cbfun);
+
+  var _glfwSetWindowTitle = (winid, title) => GLFW.setWindowTitle(winid, title);
+
+  var _glfwShowWindow = (winid) => 0;
+
   var _glfwSwapBuffers = (winid) => GLFW.swapBuffers(winid);
+
+  
+  var _glfwSwapInterval = (interval) => {
+      interval = Math.abs(interval); // GLFW uses negative values to enable GLX_EXT_swap_control_tear, which we don't have, so just treat negative and positive the same.
+      if (interval == 0) _emscripten_set_main_loop_timing(0, 0);
+      else _emscripten_set_main_loop_timing(1, interval);
+    };
 
   var _glfwTerminate = () => {
       window.removeEventListener('gamepadconnected', GLFW.onGamepadConnected, true);
@@ -8550,6 +8615,8 @@ var wasmImports = {
   /** @export */
   glfwDestroyWindow: _glfwDestroyWindow,
   /** @export */
+  glfwFocusWindow: _glfwFocusWindow,
+  /** @export */
   glfwGetClipboardString: _glfwGetClipboardString,
   /** @export */
   glfwGetCursorPos: _glfwGetCursorPos,
@@ -8564,7 +8631,19 @@ var wasmImports = {
   /** @export */
   glfwGetKey: _glfwGetKey,
   /** @export */
+  glfwGetMonitorPos: _glfwGetMonitorPos,
+  /** @export */
+  glfwGetMonitorWorkarea: _glfwGetMonitorWorkarea,
+  /** @export */
+  glfwGetMonitors: _glfwGetMonitors,
+  /** @export */
   glfwGetTime: _glfwGetTime,
+  /** @export */
+  glfwGetVideoMode: _glfwGetVideoMode,
+  /** @export */
+  glfwGetWindowAttrib: _glfwGetWindowAttrib,
+  /** @export */
+  glfwGetWindowPos: _glfwGetWindowPos,
   /** @export */
   glfwGetWindowSize: _glfwGetWindowSize,
   /** @export */
@@ -8598,11 +8677,27 @@ var wasmImports = {
   /** @export */
   glfwSetScrollCallback: _glfwSetScrollCallback,
   /** @export */
+  glfwSetWindowCloseCallback: _glfwSetWindowCloseCallback,
+  /** @export */
   glfwSetWindowFocusCallback: _glfwSetWindowFocusCallback,
+  /** @export */
+  glfwSetWindowOpacity: _glfwSetWindowOpacity,
+  /** @export */
+  glfwSetWindowPos: _glfwSetWindowPos,
+  /** @export */
+  glfwSetWindowPosCallback: _glfwSetWindowPosCallback,
   /** @export */
   glfwSetWindowSize: _glfwSetWindowSize,
   /** @export */
+  glfwSetWindowSizeCallback: _glfwSetWindowSizeCallback,
+  /** @export */
+  glfwSetWindowTitle: _glfwSetWindowTitle,
+  /** @export */
+  glfwShowWindow: _glfwShowWindow,
+  /** @export */
   glfwSwapBuffers: _glfwSwapBuffers,
+  /** @export */
+  glfwSwapInterval: _glfwSwapInterval,
   /** @export */
   glfwTerminate: _glfwTerminate,
   /** @export */

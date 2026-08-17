@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perspective Practice</title>
     <style>
+        /* Removes all browser margins and scrollbars */
         body, html {
             margin: 0;
             padding: 0;
@@ -13,25 +14,24 @@
             background-color: #1e1e1e;
             overflow: hidden;
         }
-
+        /* Forces the canvas to perfectly fill the screen */
         canvas {
             width: 100vw;
             height: 100vh;
             display: block;
             outline: none;
-            /* FIX 2: Hides the default OS cursor so only ImGui's cursor shows */
-            cursor: none;
-            /* FIX 3: Tells Firefox this canvas cannot be scrolled/swiped.
-               This instantly removes the touch/pen delay! */
-            touch-action: none;
         }
     </style>
 </head>
 <body>
+    <!-- The canvas Emscripten will draw to -->
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 
+    <!-- Tell Emscripten to use our canvas, then load the app -->
     <script type="text/javascript">
-        var Module = { canvas: document.getElementById('canvas') };
+        var Module = {
+        canvas: document.getElementById('canvas')
+        };
     </script>
     <script src="PerspectivePractice.js"></script>
 </body>
